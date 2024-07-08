@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Check for Wi-Fi connection
+wifi_status=$(nmcli -t -f ACTIVE,SSID dev wifi | grep '^yes' | cut -d ':' -f2)
+
+# Check for LAN connection
+lan_status=$(nmcli -t -f DEVICE,STATE dev status | grep 'enp7s0' | grep 'connected')
+
+if [ -n "$wifi_status" ]; then
+    echo "󰖩 $wifi_status"
+elif [ -n "$lan_status" ]; then
+    echo "󰌗 "
+else
+    echo "󰖪 "
+fi
+

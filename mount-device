@@ -1,0 +1,89 @@
+#!/bin/bash
+
+# Prompt for mode: Mount or Unmount
+mode=$(echo -e "mount\nunmount" | dmenu -p "Select mode:")
+
+# Exit if no mode is selected
+if [ -z "$mode" ]; then
+    exit 1
+fi
+
+# Function to mount a device
+mount_device() {
+    # List available block devices excluding nvme0n1 and its partitions
+    devices=$(lsblk -lp | grep "part $" | grep -vE 'nvme0n1|nvme0n1p1|nvme0n1p2|nvme0n1p3|nvme0n1p4' | awk '{print $1 " (" $4 ")"}')
+
+  if [ -z "$devices" ]; then
+        echo "no items to mount"
+        exit 1
+    fi
+
+    # Use dmenu to select a device
+    selected=$(echo "$devices" | dmenu -p "Select device to mount:")
+
+    # Exit if no device is selected
+    if [ -z "$selected" ]; then
+        exit 1
+    fi
+
+    # Extract the device path
+    device=$(echo "$selected" | awk '{print $1}')
+
+    # Mount point
+    mount_point="/mnt/$(basename $device)"
+
+    # Create the mount point directory if it doesn't exist
+    sudo mkdir -p "$mount_point"
+
+    # Mount the device
+    sudo mount "$device" "$mount_point"
+
+    # Check if the mount was successful
+    if [ $? -eq 0 ]; then
+        st -e lf "$mount_point"
+    else
+        echo "Failed to mount $device"
+    fi
+}
+
+# Function to unmount a device
+unmount_device() {
+
+    # List mounted devices under /mnt
+    mnt_items=$(ls -1 /mnt)
+
+    # Check if there are items under /mnt
+    if [ -z "$mnt_items" ]; then
+        echo "no items to unmount"
+        exit 1
+    fi
+
+    # Use dmenu to select an item under /mnt
+    selected=$(echo "$mnt_items" | dmenu -p "Select item to unmount:")
+
+    # Extract the device path
+    device=$(echo "$selected" | awk '{print $1}')
+
+    # Unmount the device
+    sudo umount "/dev/$device"
+
+    # Check if the unmount was successful
+    if [ $? -eq 0 ]; then
+        echo "Successfully unmounted $device"
+    else
+        echo "Failed to unmount $device"
+        exit 1
+    fi
+
+    sudo rm -rf "/mnt/$device"
+}
+
+if [ "$mode" = "mount" ]; then
+    mount_device
+elif [ "$mode" = "unmount" ]; then
+    unmount_device
+else
+    echo "Invalid mode selected"
+    exit 1
+fi
+

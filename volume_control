@@ -1,0 +1,51 @@
+#!/bin/sh
+
+# Function to decrease volume by 5%
+decrease_volume() {
+    pactl set-sink-volume @DEFAULT_SINK@ -5%
+}
+
+# Function to increase volume by 5%
+increase_volume() {
+    pactl set-sink-volume @DEFAULT_SINK@ +5%
+}
+
+# Function to toggle mute
+toggle_mute() {
+    pactl set-sink-mute @DEFAULT_SINK@ toggle
+}
+
+# Determine action based on argument
+case "$1" in
+    down)
+        decrease_volume
+        ;;
+    up)
+        increase_volume
+        ;;
+    mute)
+        toggle_mute
+        ;;
+esac
+
+SINK=$(pactl info | grep "Default Sink" | awk '{print $3}')
+
+VOLUME=$(pactl list sinks | grep -A 15 "$SINK" | grep 'Volume:' | head -n 1 | awk '{print $5}' | awk -F'%' '{print $1}')
+MUTE=$(pactl list sinks | grep -A 15 "$SINK" | grep 'Mute:' | awk '{print $2}')
+
+if [ "$MUTE" = "yes" ]; then
+    ICON="󰝟"
+    VOLUME_PERCENT="0"
+else
+    VOLUME_PERCENT=$(echo "$VOLUME" | tr -d '%')  # Remove '%' sign if present
+    if [ "$VOLUME_PERCENT" -eq 0 ]; then
+        ICON="󰕿"  # low volume
+    elif [ "$VOLUME_PERCENT" -le 50 ]; then
+        ICON="󰖀"  # medium volume
+    else
+        ICON="󰕾"  # high volume
+    fi
+fi
+
+echo "$ICON $VOLUME_PERCENT%"
+

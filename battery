@@ -1,0 +1,57 @@
+#!/bin/bash
+
+# Get the battery percentage
+BATTERY_PERCENT=$(cat /sys/class/power_supply/BAT1/capacity)
+
+# Get the charging status
+CHARGING_STATUS=$(cat /sys/class/power_supply/BAT1/status)
+
+# Determine the appropriate icon
+if [ "$CHARGING_STATUS" == "Charging" ]; then
+    if [ "$BATTERY_PERCENT" -le 10 ]; then
+        ICON="󰢜" # nf-md-battery_charging_10
+    elif [ "$BATTERY_PERCENT" -le 20 ]; then
+        ICON="󰂆" # nf-md-battery_charging_20
+    elif [ "$BATTERY_PERCENT" -le 30 ]; then
+        ICON="󰂇" # nf-md-battery_charging_30
+    elif [ "$BATTERY_PERCENT" -le 40 ]; then
+        ICON="󰂈" # nf-md-battery_charging_40
+    elif [ "$BATTERY_PERCENT" -le 50 ]; then
+        ICON="󰢝" # nf-md-battery_charging_50
+    elif [ "$BATTERY_PERCENT" -le 60 ]; then
+        ICON="󰂉" # nf-md-battery_charging_60
+    elif [ "$BATTERY_PERCENT" -le 70 ]; then
+        ICON="󰢞" # nf-md-battery_charging_70
+    elif [ "$BATTERY_PERCENT" -le 80 ]; then
+        ICON="󰂊" # nf-md-battery_charging_80
+    elif [ "$BATTERY_PERCENT" -le 90 ]; then
+        ICON="󰂋" # nf-md-battery_charging_90
+    else
+        ICON="󰂅" # nf-md-battery_charging_100
+    fi
+else
+    if [ "$BATTERY_PERCENT" -le 10 ]; then
+        ICON="󰁺" # nf-md-battery_10
+    elif [ "$BATTERY_PERCENT" -le 20 ]; then
+        ICON="󰁻" # nf-md-battery_20
+    elif [ "$BATTERY_PERCENT" -le 30 ]; then
+        ICON="󰁼" # nf-md-battery_30
+    elif [ "$BATTERY_PERCENT" -le 40 ]; then
+        ICON="󰁽" # nf-md-battery_40
+    elif [ "$BATTERY_PERCENT" -le 50 ]; then
+        ICON="󰁾" # nf-md-battery_50
+    elif [ "$BATTERY_PERCENT" -le 60 ]; then
+        ICON="󰁿" # nf-md-battery_60
+    elif [ "$BATTERY_PERCENT" -le 70 ]; then
+        ICON="󰂀" # nf-md-battery_70
+    elif [ "$BATTERY_PERCENT" -le 80 ]; then
+        ICON="󰂁" # nf-md-battery_80
+    elif [ "$BATTERY_PERCENT" -le 90 ]; then
+        ICON="󰂂" # nf-md-battery_90
+    else
+        ICON="󰁹" # nf-md-battery
+    fi
+fi
+
+# Display the icon and battery percentage
+echo "$ICON $BATTERY_PERCENT%"
